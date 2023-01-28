@@ -20,6 +20,9 @@ const teamMembers = [];
 const teamArr = [];
 const idArr = [];
 
+// prompts user to start putting team together or exit app
+function startApp() {
+
 // Manager
 function addManager() {
     inquirer
@@ -184,5 +187,38 @@ function addIntern() {
                 teamArr.push(intern);
                 idArr.push(answers.internId);
                 addTeam();
-            });
+            })
         }
+    }
+};
+// write the HTML using the file system (first argument is the file name, second argument is the HTML template, third argument is the error callback function)
+const writeFile = data => {
+    fs.writeFile('./dist/index.html', data, err => {
+      // if there is an error
+      if (err) {
+        console.log(err);
+        return;
+        // when the profile is created
+      } else {
+        console.log(
+          'Your team profile has been created successfully! Check out index.html to see the output!'
+        );
+      }
+    });
+};
+
+// Initialize the command line
+addManager()
+  .then(addEmployee)
+  .then(teamArr => {
+    return generateCards(teamArr);
+  })
+  .then(writeHTML => {
+    return writeFile(writeHTML);
+  })
+  // checks if there is an error message
+  .catch(err => {
+    console.log(err);
+  });
+    startApp();
+
