@@ -1,38 +1,40 @@
-const inquirer = require("inquirer");
-const fs = require("fs");
-const path = require("path");
+// Dependencies
+const inquirer = require('inquirer');
+const fs = require('fs');
+const path = require('path');
 const jest = require('jest');
-//constructor
-const Manager = require("./lib/Manager");
-const Engineer = require("./lib/Engineer");
-const Intern = require("./lib/Intern");
-const Employee = require("./lib/Employee");
+
+
+// Constructors
+const Employee = require('./lib/Employee');
+const Manager = require('./lib/Manager');
+const Engineer = require('./lib/Engineer');
+const Intern = require('./lib/Intern');
+
 
 const DIST_DIR = path.resolve(__dirname, 'dist')
 const outputPath = path.join(DIST_DIR, 'index.html');
 
 const render = require('./util/generateHtml.js');
 
-// Team members array
-const teamMembers = [];
-
 // Create empty arrays for team and id as place holders
 const teamArr = [];
 const idArr = [];
 
-// prompts user to start putting team together or exit app
-function startApp() {
 
-// Manager
-function addManager() {
-    inquirer
-       .prompt([
+// Start application
+function initApp() {
+
+    // Prompt user to create a manager when application starts
+    function addManager() {
+        console.log("Start building your team profile");
+        inquirer.prompt([
             {
                 type: "input",
                 name: "managerName",
-                message: "What is the manager's name?",
-                validate: managerName => {
-                    if (managerName !== "") {
+                message: "What's manager's name?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
                     return "Please enter the team's manager's name.";
@@ -41,9 +43,9 @@ function addManager() {
             {
                 type: "input",
                 name: "managerId",
-                message: "What is the manager's ID?",
-                validate: managerId => {
-                    if (managerId !== "") {
+                message: "What's the manager's ID?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
                     return "Please enter a valid Manager's ID.";
@@ -52,9 +54,9 @@ function addManager() {
             {
                 type: "input",
                 name: "managerEmail",
-                message: "What is the manager's email?",
-                validate: managerEmail => {
-                    if (managerEmail !== "") {
+                message: "What's the manager's email?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
                     return "Email address can't be empty.";
@@ -63,12 +65,15 @@ function addManager() {
             {
                 type: "input",
                 name: "managerOfficeNumber",
-                message: "What is the manager's office number?",
+                message: "What's the manager's office number? (format: 111111111)",
                 validate: answer => {
-                    if (answer !== "") {
+                    const pass = answer.match(
+                        /^[1-9]\d*$/
+                    );
+                    if (pass) {
                         return true;
                     }
-                    return "Email address can't be empty.";
+                    return "Please enter a correct phone number.";
                 }
             }
         ]).then(answers => {
@@ -79,70 +84,97 @@ function addManager() {
         });
     }
 
-//Engineer
-function addEngineer() {
-    inquirer
-        .prompt([
-             {
-                 type: "input",
-                 name: "engineerName",
-                 message: "What is the engineer's name?",
-                 validate: engineerName => {
-                    if (engineerName !== "") {
+    // addTeam function after finish with addManager
+    function addTeam() {
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "memberChoice",
+                message: "What would you like to add next?",
+                choices: [
+                    "Engineer",
+                    "Intern",
+                    "End application"
+                ]
+            }
+        ]).then(userChoice => {
+            switch (userChoice.memberChoice) {
+                case "Engineer":
+                    addEngineer();
+                    break;
+                case "Intern":
+                    addIntern();
+                    break;
+                default:
+                    generateHTML();
+            }
+        });
+    }
+
+    // add an Engineer when selected
+    function addEngineer() {
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "engineerName",
+                message: "What's the engineer's name?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
-                    return "Name can't be left empty.";
+                    return "Engineer's name can't be left empty.";
                 }
-                },
-                {
-                 type: "input",
-                 name: "engineerId",
-                 message: "What is the engineer's ID?",
-                 validate: engineerId => {
-                    if (engineerId !== "") {
+            },
+            {
+                type: "input",
+                name: "engineerId",
+                message: "What's the engineer's id?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
-                    return "Please enter a valid ID.";
+                    return "Please enter a valid Engineer's ID.";
                 }
-                },
-                {
-                 type: "input",
-                 name: "engineerEmail",
-                 message: "What is the engineer's email?",
-                 validate: engineerEmail => {
-                    if (engineerEmail !== "") {
+            },
+            {
+                type: "input",
+                name: "engineerEmail",
+                message: "What's the engineer's email?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
                     return "Email address can't be empty.";
                 }
-                },
-                {
-                 type: "input",
-                 name: "engineerGithub",
-                 message: "What is the engineer's GitHub username?",
-                 validate: engineerGithub => {
-                    if (engineerGithub !== "") {
+            },
+            {
+                type: "input",
+                name: "engineerGithub",
+                message: "What's the engineer's GitHub username?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
-                    return "Please enter the GitHub username.";
+                    return "Please enter the engineer's GitHub username.";
                 }
-                }
-            ]).then(answers => {
-                const engineer = new Engineer(answers.engineerName, answers.engineerId, answers.engineerEmail, answers.engineerGithub);
-                teamArr.push(engineer);
-                idArr.push(answers.engineerId);
-                addTeam();
-            });
-//Intern
-function addIntern() {
-    inquirer
-       .prompt([
+            }
+        ]).then(answers => {
+            const engineer = new Engineer(answers.engineerName, answers.engineerId, answers.engineerEmail, answers.engineerGithub);
+            teamArr.push(engineer);
+            idArr.push(answers.engineerId);
+            addTeam();
+        });
+    }
+
+    // Add an Intern when selected
+    function addIntern() {
+        inquirer.prompt([
             {
                 type: "input",
                 name: "internName",
-                message: "What is the intern's name?",
-                validate: internName => {
-                    if (internName !== "") {
+                message: "What's the intern's name?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
                     return "Please enter at least one character.";
@@ -151,74 +183,57 @@ function addIntern() {
             {
                 type: "input",
                 name: "internId",
-                message: "What is the intern's ID?",
-                validate: internId=> {
-                    if (internId !== "") {
+                message: "What's the intern's id?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
-                    return "Please enter a valid ID.";
+                    return "Please enter a valid Intern's ID.";
                 }
-                },
-                {
+            },
+            {
                 type: "input",
                 name: "internEmail",
-                message: "What is the intern's email?",
-                validate: internEmail => {
-                    if (internEmail !== "") {
+                message: "What's the intern's email?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
                     return "Email address can't be empty.";
                 }
-                },
-                {
+            },
+            {
                 type: "input",
                 name: "internSchool",
-                message: "What school does the intern attend?",
-                validate: internSchool => {
-                    if (internSchool !== "") {
+                message: "What's the intern's school?",
+                validate: answer => {
+                    if (answer !== "") {
                         return true;
                     }
                     return "Please enter a correct school.";
                 }
-                }
- 
-            ]).then(answers => {
-                const intern = new Intern(answers.internName, answers.internId, answers.internEmail, answers.internSchool);
-                teamArr.push(intern);
-                idArr.push(answers.internId);
-                addTeam();
-            })
-        }
-    }
-};
-// write the HTML using the file system (first argument is the file name, second argument is the HTML template, third argument is the error callback function)
-const writeFile = data => {
-    fs.writeFile('./dist/index.html', data, err => {
-      // if there is an error
-      if (err) {
-        console.log(err);
-        return;
-        // when the profile is created
-      } else {
-        console.log(
-          'Your team profile has been created successfully! Check out index.html to see the output!'
-        );
-      }
-    });
-};
+            }
 
-// Initialize the command line
-addManager()
-  .then(addEmployee)
-  .then(teamArr => {
-    return generateCards(teamArr);
-  })
-  .then(writeHTML => {
-    return writeFile(writeHTML);
-  })
-  // checks if there is an error message
-  .catch(err => {
-    console.log(err);
-  });
-    startApp();
+        ]).then(answers => {
+            const intern = new Intern(answers.internName, answers.internId, answers.internEmail, answers.internSchool);
+            teamArr.push(intern);
+            idArr.push(answers.internId);
+            addTeam();
+        });
+    }
+    
+    function generateHTML() {
+
+        // Create dist directory for index.html if it doesnt exist
+        if (!fs.existsSync(DIST_DIR)) {
+            fs.mkdirSync(DIST_DIR)
+        }
+        console.log("Generating Team Profile.... ");
+        fs.writeFileSync(outputPath, render(teamArr), "utf-8");
+    }
+
+    addManager();
+}
+
+initApp();
 
