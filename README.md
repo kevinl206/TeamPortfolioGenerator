@@ -19,7 +19,7 @@ A Node.js command-line application that takes in information about managers, eng
 ## Functionality
 
 
-![](assests/Screenshot 2023-05-05 at 10.54.57 PM.png)
+![](./assests/Screenshot%202023-05-05%20at%2010.54.57%20PM.png)
 
 
 ## Technologies Used
