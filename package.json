@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/kevinl206/TeamPortfolioGenerator/issues"
   },
-  "homepage": "https://github.com/kevinl206/TeamPortfolioGenerator#readme"
+  "homepage": "https://github.com/kevinl206/TeamPortfolioGenerator#readme",
+  "dependencies": {
+    "inquirer": "^8.2.4"
+  }
 }
